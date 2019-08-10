@@ -1,4 +1,4 @@
-package clientes;
+package cliente;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -127,11 +127,15 @@ public class Cliente {
 					this.out.writeUTF("sair");
 					System.out.println("Finalizado");
 					exit = false;
+					
+					this.socket.close();
+					this.in.close(); 
+					this.out.close();
 				}
 				break;
 	    	}
 	    	
-	    	if(!option.equalsIgnoreCase("sair"))
+	    	if(!option.equalsIgnoreCase("sair") && !option.equalsIgnoreCase("registro"))
 	    		teclado.nextLine();
 			
 		}

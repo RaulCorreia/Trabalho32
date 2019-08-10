@@ -126,7 +126,7 @@ public class Conn extends Thread implements MyCallBack{
         					registro += sc.nextLine() + "\n"; 
         				} 
         				
-        				System.out.println(registro);
+        				this.out.writeUTF(registro);
 	        		}
 	        			break;
 	        			
@@ -140,6 +140,10 @@ public class Conn extends Thread implements MyCallBack{
 	        			PrintWriter writer = new PrintWriter(arq);
 	        			writer.print("");
 	        			writer.close();
+	        			
+	        			this.socket.close();
+						this.in.close(); 
+						this.out.close();
 	        		}
 	        			break;
 		                
