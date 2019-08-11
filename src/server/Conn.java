@@ -11,7 +11,11 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
+import java.util.Timer;
+import java.util.TimerTask;
 
 
 public class Conn extends Thread implements MyCallBack{
@@ -27,7 +31,11 @@ public class Conn extends Thread implements MyCallBack{
     private String request = "";
     private String toSave = "";
     
-    public Conn(Socket socket) throws IOException {
+    private int statePing = 0;
+    private List<String> listPing;
+    private MyCallBack callPing;
+    
+    public Conn(Socket socket, MyCallBack callPing) throws IOException {
     	
     	System.out.print("Conexao estabelecida ");
     	this.socket = socket;
@@ -37,6 +45,9 @@ public class Conn extends Thread implements MyCallBack{
         this.group = InetAddress.getByName("230.0.0.0");
 		this.sendMultiCast = new DatagramSocket();
 		
+		this.listPing = new ArrayList<>();
+		
+		this.callPing = callPing;
     }
     
  
@@ -54,7 +65,7 @@ public class Conn extends Thread implements MyCallBack{
             thread.start();
         	
         	boolean run = true;
-	        
+        	ping();
 	        while(run) {
 				
 	        	String opcao = this.in.readUTF();
@@ -163,6 +174,28 @@ public class Conn extends Thread implements MyCallBack{
     }
     
     
+    private void ping() {
+    	
+    	Timer timer = new Timer();
+        TimerTask task = new TimerTask() {
+            public void run(){
+            	
+            	
+            	if(statePing == 0) {
+            		System.out.println("ENVIANDO PING");
+            		sendCast("!ping!0");
+            		statePing = 1;
+            	} else {
+            		System.out.println("CHECANDO PONG");
+            		callBackRetorno("checkPing", "");
+            		statePing = 0;
+            	}
+            }
+        };
+        timer.schedule( task, 0, 10000 );
+    }
+    
+    
     private void sendCast(String mensagem) {
     	
     	try {
@@ -240,7 +273,7 @@ public class Conn extends Thread implements MyCallBack{
 				
 		if(opcao.equalsIgnoreCase(this.request)) {
 			
-			System.out.println("Opção no callback conn: " + opcao + " resultado: " + result);
+			System.out.println(opcao + " resultado: " + result);
 			this.request = "received";
 			this.toSave += result;
 			
@@ -263,6 +296,18 @@ public class Conn extends Thread implements MyCallBack{
 				e.printStackTrace();
 			}
 			
+		} else if(opcao.equalsIgnoreCase("pong")) {
+			this.listPing.add(opcao);
+			System.out.println("PONG RECEBIDO: " + opcao);
+		} else if(opcao.equalsIgnoreCase("checkPing")) {
+			
+			System.out.println("CONFERINDO PONG");
+			if(this.listPing.size() < 3) {
+				this.callPing.callBackRetorno("restart", "");
+			}
+			
+			
+			this.listPing.clear();
 		}
 		
 		

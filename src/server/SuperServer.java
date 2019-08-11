@@ -7,7 +7,7 @@ import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
 
-public class SuperServer {
+public class SuperServer implements MyCallBack{
 	
     private Thread thread1;
     private Thread thread2;
@@ -29,7 +29,7 @@ public class SuperServer {
 	
 	public void initServer() throws IOException, InterruptedException {
 		
-		GetConn conn = new GetConn();
+		GetConn conn = new GetConn(this);
 		Thread threadConn = new Thread(conn);
 		threadConn.start();
 		
@@ -40,19 +40,12 @@ public class SuperServer {
         Server serv2 = new Server();
         this.thread2 = new Thread(serv2);
         this.thread2.start();
+        
+        Server serv3 = new Server();
+        this.thread3 = new Thread(serv3);
+        this.thread3.start();
 		
 		while(true) {
-					
-			
-			if(this.runOther) {
-				
-				Server serv3 = new Server();
-		        this.thread3 = new Thread(serv3);
-		        this.thread3.start();
-				
-		        
-		        this.runOther = false;
-			}
 			
 	        System.out.println("Derrubar servidor?");
 	        String option = teclado.nextLine();
@@ -66,12 +59,14 @@ public class SuperServer {
 	}
 
 	
-	public class GetConn extends Thread {
+	public class GetConn extends Thread implements MyCallBack {
 		
 		private ServerSocket socketServidor;
+	    private MyCallBack callPing;
 	    
-	    public GetConn() throws IOException {
+	    public GetConn(MyCallBack callPing) throws IOException {
 	    	this.socketServidor = new ServerSocket(12345);
+	    	this.callPing = callPing;
 	    }
 	    
 	 
@@ -83,7 +78,7 @@ public class SuperServer {
 		    		
 		    		Socket socket = this.socketServidor.accept();
 					
-		    		Conn conn = new Conn(socket);
+		    		Conn conn = new Conn(socket, this);
 		    		new Thread(conn).start();
 		    		
 		    	} catch (IOException e) {
@@ -91,15 +86,44 @@ public class SuperServer {
 	    	}
 	    }
 
+
+		@Override
+		public void callBackRetorno(String opcao, String result) {
+			callPing.callBackRetorno(opcao, result);
+		}
+
 	    
 	}
 	
 	
 	public void listnerServ() throws InterruptedException {
 		System.out.println("Servidor 3 caiu..");
-		TimeUnit.SECONDS.sleep(20);
-		System.out.println("Servidor 3 iniciando");
+//		TimeUnit.SECONDS.sleep(20);
+//		System.out.println("Servidor 3 iniciando");
+//		this.runOther = true;
+	}
+
+
+	@Override
+	public void callBackRetorno(String opcao, String result) {
 		this.runOther = true;
+		
+		if(this.runOther) {
+			
+			try {
+				
+				System.out.println("Servidor 3 iniciando");
+				Server serv3 = new Server();
+				this.thread3 = new Thread(serv3);
+		        this.thread3.start();
+		        
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+	        
+	        
+	        this.runOther = false;
+		}
 	}
 	
 }

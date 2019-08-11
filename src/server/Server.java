@@ -94,6 +94,10 @@ public class Server extends Thread {
 	                		sendCast(resultStr);
 	                	}
 	                	break;
+	                	
+	                	case "ping":{
+	                		sendCast(split[1]+"!pong!0");
+	                	}
 	                
                 	}
                 	
