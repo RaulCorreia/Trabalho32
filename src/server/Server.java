@@ -38,7 +38,7 @@ public class Server extends Thread {
                 
                 
                 if(!split[0].equalsIgnoreCase("server")) {
-                	System.out.println(received);
+                	
                 	switch(split[2]) {
 	                	case "soma":{
 	                		String calcReceived = split[3];
@@ -94,13 +94,7 @@ public class Server extends Thread {
 	                		sendCast(resultStr);
 	                	}
 	                	break;
-	                	
-	                	case "show":{
-	                		String resultStr = "registro";
-	                		System.out.println("Resultado enviado para conn: " + resultStr);
-	                		sendCast(resultStr);
-	                	}
-	                	break;
+	                
                 	}
                 	
                 } 

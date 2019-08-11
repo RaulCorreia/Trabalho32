@@ -119,11 +119,11 @@ public class Conn extends Thread implements MyCallBack{
 	        			
 	        		case "show":{
 	        			File file = new File("src/sessions/"+this.sign+".txt"); 
-	        			Scanner sc = new Scanner(file); 
+	        			Scanner scan = new Scanner(file); 
 	        				  
 	        			String registro = "";
-        				while (sc.hasNextLine()) {
-        					registro += sc.nextLine() + "\n"; 
+        				while (scan.hasNextLine()) {
+        					registro += scan.nextLine() + "\n"; 
         				} 
         				
         				this.out.writeUTF(registro);
